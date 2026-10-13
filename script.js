@@ -1,7 +1,7 @@
 (() => {
   "use strict";
 
-  const VERSION = "v0.3.1";
+  const VERSION = "v0.4";
   const STORAGE_KEY = "rinBellMatch3Progress.v1";
 
   const stages = [
@@ -32,13 +32,37 @@
     {
       id: 3,
       name: "月明かりの広い畑",
-      story: "最後は7×7。月明かりの下で、広い畑をゆっくり耕そう。",
+      story: "7×7。月明かりの下で、広い畑をゆっくり耕そう。",
       clearMessage: "ステージ3クリア！ 月明かりの広い畑まで耕せたよ。今日の地下畑、完成🌙",
       rows: 7,
       cols: 7,
       icons: ["🔔", "🌙", "🐇", "💌", "🪨"],
       moves: 22,
       targetScore: 1400,
+      pointsPerPiece: 10,
+    },
+    {
+      id: 4,
+      name: "星あかりの種まき",
+      story: "新しく✨が仲間入り。星のかけらをまぜながら、畝をもう一つ育てよう。",
+      clearMessage: "ステージ4クリア！ 星あかりの種まきまでできたよ。きらりんっ✨",
+      rows: 6,
+      cols: 6,
+      icons: ["🔔", "🌙", "🐇", "💌", "🪨", "✨"],
+      moves: 22,
+      targetScore: 1200,
+      pointsPerPiece: 10,
+    },
+    {
+      id: 5,
+      name: "小さな灯りの畑",
+      story: "🕯️も灯ったよ。7×7の畑で、星と灯りを見失わずに耕そう。",
+      clearMessage: "ステージ5クリア！ 小さな灯りの畑まで耕せたよ。小庭の地下が少し明るくなったね🕯️",
+      rows: 7,
+      cols: 7,
+      icons: ["🔔", "🌙", "🐇", "💌", "🪨", "✨", "🕯️"],
+      moves: 28,
+      targetScore: 1600,
       pointsPerPiece: 10,
     },
   ];
@@ -49,6 +73,7 @@
   const stageLabel = document.getElementById("stageLabel");
   const stageNameElement = document.getElementById("stageName");
   const stageStoryElement = document.getElementById("stageStory");
+  const iconLegendElement = document.getElementById("iconLegend");
   const scoreLabel = document.getElementById("scoreLabel");
   const targetLabel = document.getElementById("targetLabel");
   const movesLabel = document.getElementById("movesLabel");
@@ -91,6 +116,8 @@
           .map((item) => Number(item))
           .filter((item, index, array) => Number.isInteger(item) && item >= 1 && item <= stages.length && array.indexOf(item) === index);
       }
+      const furthestCleared = clean.cleared.length ? Math.max(...clean.cleared) : 0;
+      clean.highestUnlocked = Math.max(clean.highestUnlocked, Math.min(stages.length, furthestCleared + 1));
       if (clean.lastStageId > clean.highestUnlocked) clean.lastStageId = clean.highestUnlocked;
       return clean;
     } catch (error) {
@@ -178,6 +205,7 @@
     stageLabel.textContent = stage.id;
     stageNameElement.textContent = `ステージ${stage.id}：${stage.name}`;
     stageStoryElement.textContent = stage.story;
+    if (iconLegendElement) iconLegendElement.textContent = `${stage.icons.join(" ")} をそろえて、小庭の畑を耕そう。`;
     targetLabel.textContent = stage.targetScore;
     boardElement.setAttribute("aria-label", `${stage.rows}かける${stage.cols}のマッチ3盤面`);
     document.body.classList.toggle("cols-8", stage.cols === 8);
