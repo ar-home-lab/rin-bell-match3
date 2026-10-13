@@ -1,7 +1,7 @@
 (() => {
   "use strict";
 
-  const VERSION = "v0.4.2";
+  const VERSION = "v0.5";
   const STORAGE_KEY = "rinBellMatch3Progress.v1";
 
   const stages = [
@@ -57,7 +57,7 @@
       id: 5,
       name: "小さな灯りの畑",
       story: "🕯️も灯ったよ。7×7の畑で、星と灯りを見失わずに耕そう。",
-      clearMessage: "ステージ5クリア！ 小さな灯りの畑まで耕せたよ。小庭の地下が少し明るくなったね🕯️",
+      clearMessage: "ステージ5クリア！ 地下畑、今日のぶん完成！ 小庭の地下が少し明るくなったね🕯️",
       rows: 7,
       cols: 7,
       icons: ["🔔", "🌙", "🐇", "💌", "🪨", "✨", "🕯️"],
@@ -83,6 +83,7 @@
   const nextStageButton = document.getElementById("nextStageButton");
   const shuffleButton = document.getElementById("shuffleButton");
   const resetProgressButton = document.getElementById("resetProgressButton");
+  const rewardPanel = document.getElementById("rewardPanel");
 
   const progress = loadProgress();
   let currentStageIndex = clampStageIndex((progress.lastStageId ?? 1) - 1);
@@ -143,6 +144,10 @@
 
   function isStageCleared(stageId) {
     return progress.cleared.includes(stageId);
+  }
+
+  function isAllStagesCleared() {
+    return progress.cleared.length >= stages.length && stages.every((stage) => isStageCleared(stage.id));
   }
 
   function isStageUnlocked(stageId) {
@@ -271,6 +276,10 @@
     }
 
     const clearedCount = progress.cleared.length;
+    if (isAllStagesCleared()) {
+      progressTextElement.textContent = `全${stages.length}ステージクリア済み！ 白狼とプリンが柵の向こうから予告出演中。`;
+      return;
+    }
     const openText = progress.highestUnlocked >= stages.length
       ? "すべての畑が解放されています。"
       : `ステージ${progress.highestUnlocked}まで解放中。`;
@@ -321,6 +330,10 @@
         cell.addEventListener("click", () => handleCellClick(row, col));
         boardElement.appendChild(cell);
       }
+    }
+
+    if (rewardPanel) {
+      rewardPanel.hidden = !(stageCleared && currentStage().id === stages.length && isAllStagesCleared());
     }
 
     restartButton.disabled = isBusy;

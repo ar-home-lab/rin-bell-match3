@@ -302,6 +302,57 @@ h1 {
   background: rgba(255, 154, 169, 0.92);
 }
 
+.reward-panel {
+  margin: 0 0 16px;
+  padding: 18px 16px;
+  text-align: center;
+  border: 1px solid rgba(255, 217, 88, 0.40);
+  border-radius: 26px;
+  background:
+    radial-gradient(circle at 24% 12%, rgba(255, 217, 88, 0.28), transparent 10rem),
+    radial-gradient(circle at 82% 18%, rgba(118, 226, 191, 0.20), transparent 10rem),
+    rgba(255, 255, 255, 0.13);
+  box-shadow:
+    0 14px 28px rgba(0, 0, 0, 0.22),
+    inset 0 1px 0 rgba(255, 255, 255, 0.20);
+}
+
+.reward-panel[hidden] {
+  display: none;
+}
+
+.reward-kicker {
+  margin: 0 0 6px;
+  color: var(--accent);
+  font-weight: 900;
+  letter-spacing: 0.04em;
+}
+
+.reward-icons {
+  margin: 2px 0 6px;
+  font-size: clamp(2.4rem, 13vw, 4.2rem);
+  line-height: 1;
+  filter: drop-shadow(0 8px 12px rgba(0, 0, 0, 0.25));
+}
+
+.reward-panel h2 {
+  margin: 0 0 8px;
+  font-size: clamp(1.25rem, 6vw, 1.85rem);
+  line-height: 1.25;
+}
+
+.reward-panel p {
+  margin: 8px auto 0;
+  max-width: 32em;
+  color: var(--text-soft);
+  line-height: 1.65;
+}
+
+.reward-panel .reward-note {
+  color: rgba(255, 247, 215, 0.68);
+  font-size: 0.88rem;
+}
+
 .board-wrap {
   display: grid;
   place-items: center;

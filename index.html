@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-  <title>りんっベルの小庭｜マッチ3畑 v0.4.2</title>
+  <title>りんっベルの小庭｜マッチ3畑 v0.5</title>
   <link rel="stylesheet" href="style.css" />
 </head>
 <body class="cols-6">
@@ -52,6 +52,14 @@
 
       <p id="message" class="message" role="status" aria-live="polite">隣同士のアイコンを入れ替えて、3つ以上そろえてね。</p>
 
+      <section id="rewardPanel" class="reward-panel" aria-label="全ステージクリアごほうび" hidden>
+        <p class="reward-kicker">地下畑、今日のぶん完成！</p>
+        <div class="reward-icons" aria-hidden="true">🐺 🍮</div>
+        <h2>白狼とプリン、予告出演</h2>
+        <p>ステージ5まで耕したごほうびに、柵の向こうから特別枠のふたりが顔を出したよ。</p>
+        <p class="reward-note">まだ通常ピースでも効果つきでもありません。次の更新で、どんな役目になるか一緒に決めよう。</p>
+      </section>
+
       <section class="board-wrap" aria-label="パズル盤面">
         <div id="board" class="board" role="grid" aria-label="6かける6のマッチ3盤面"></div>
       </section>
@@ -66,16 +74,16 @@
       <details class="rules">
         <summary>今日の土台ルール</summary>
         <ul>
-          <li>v0.4.2は失敗時メッセージとボタン表示を分かりやすくした微修正版です。</li>
+          <li>v0.5は全ステージクリア後に、白狼とプリンの予告出演ごほうび画面が出る版です。</li>
           <li>隣同士だけ入れ替えできます。</li>
           <li>3つ以上そろうと消えて、上から新しいアイコンが落ちます。</li>
           <li>目標スコアに届いたらクリア。「次の畑へ」で進めます。</li>
           <li>クリア済みステージはいつでも遊び直せます。未解放の畑は鍵つきです。</li>
-          <li>白狼とプリンは特別枠として、まだ柵の向こうで待機中です。通常ピースにはまだ入りません。</li>
+          <li>白狼とプリンは、全ステージクリア後のごほうび画面で予告出演します。通常ピースにはまだ入りません。</li>
         </ul>
       </details>
 
-      <p class="version">りんっベルの小庭｜マッチ3畑 v0.4.2 / 盤面暗転防止版</p>
+      <p class="version">りんっベルの小庭｜マッチ3畑 v0.5 / 全ステージごほうび予告版</p>
     </section>
   </main>
 
