@@ -1,0 +1,66 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <title>りんっベルの小庭｜マッチ3畑 v0.1</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <main class="app-shell">
+    <section class="card" aria-label="りんっベルの小庭 マッチ3畑">
+      <div class="moon moon-a" aria-hidden="true"></div>
+      <div class="moon moon-b" aria-hidden="true"></div>
+
+      <header class="hero">
+        <p class="eyebrow">りんっベルの小庭 地下畑</p>
+        <h1>マッチ3畑</h1>
+        <p class="subtitle">🔔 🌙 🐇 💌 🪨 をそろえて、小庭の畑を耕そう。</p>
+      </header>
+
+      <section class="status-panel" aria-label="ゲーム状況">
+        <div>
+          <span class="label">ステージ</span>
+          <strong id="stageLabel">1</strong>
+        </div>
+        <div>
+          <span class="label">スコア</span>
+          <strong id="scoreLabel">0</strong>
+        </div>
+        <div>
+          <span class="label">目標</span>
+          <strong id="targetLabel">800</strong>
+        </div>
+        <div>
+          <span class="label">手数</span>
+          <strong id="movesLabel">20</strong>
+        </div>
+      </section>
+
+      <p id="message" class="message" role="status" aria-live="polite">隣同士のアイコンを入れ替えて、3つ以上そろえてね。</p>
+
+      <section class="board-wrap" aria-label="パズル盤面">
+        <div id="board" class="board" role="grid" aria-label="6かける6のマッチ3盤面"></div>
+      </section>
+
+      <div class="controls">
+        <button id="restartButton" type="button">もう一度</button>
+        <button id="shuffleButton" type="button">畑を整える</button>
+      </div>
+
+      <details class="rules">
+        <summary>今日の土台ルール</summary>
+        <ul>
+          <li>6×6盤面、5種類の小庭アイコン。</li>
+          <li>隣同士だけ入れ替えできます。</li>
+          <li>3つ以上そろうと消えて、上から新しいアイコンが落ちます。</li>
+          <li>目標スコアに届いたらクリア。</li>
+          <li>白狼とプリンは特別枠として温存中です。</li>
+        </ul>
+      </details>
+    </section>
+  </main>
+
+  <script src="script.js"></script>
+</body>
+</html>
