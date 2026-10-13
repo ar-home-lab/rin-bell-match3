@@ -1,7 +1,8 @@
 (() => {
   "use strict";
 
-  const VERSION = "v0.2";
+  const VERSION = "v0.3";
+  const STORAGE_KEY = "rinBellMatch3Progress.v1";
 
   const stages = [
     {
@@ -43,6 +44,8 @@
   ];
 
   const boardElement = document.getElementById("board");
+  const stageButtonsElement = document.getElementById("stageButtons");
+  const progressTextElement = document.getElementById("progressText");
   const stageLabel = document.getElementById("stageLabel");
   const stageNameElement = document.getElementById("stageName");
   const stageStoryElement = document.getElementById("stageStory");
@@ -51,10 +54,13 @@
   const movesLabel = document.getElementById("movesLabel");
   const messageElement = document.getElementById("message");
   const restartButton = document.getElementById("restartButton");
+  const stageListButton = document.getElementById("stageListButton");
   const nextStageButton = document.getElementById("nextStageButton");
   const shuffleButton = document.getElementById("shuffleButton");
+  const resetProgressButton = document.getElementById("resetProgressButton");
 
-  let currentStageIndex = 0;
+  const progress = loadProgress();
+  let currentStageIndex = clampStageIndex((progress.lastStageId ?? 1) - 1);
   let board = [];
   let selected = null;
   let score = 0;
@@ -63,6 +69,84 @@
   let gameOver = false;
   let stageCleared = false;
   let comboDepth = 0;
+
+  function defaultProgress() {
+    return {
+      highestUnlocked: 1,
+      cleared: [],
+      lastStageId: 1,
+    };
+  }
+
+  function loadProgress() {
+    try {
+      const raw = window.localStorage.getItem(STORAGE_KEY);
+      if (!raw) return defaultProgress();
+      const parsed = JSON.parse(raw);
+      const clean = defaultProgress();
+      clean.highestUnlocked = clampStageId(Number(parsed.highestUnlocked) || 1);
+      clean.lastStageId = clampStageId(Number(parsed.lastStageId) || 1);
+      if (Array.isArray(parsed.cleared)) {
+        clean.cleared = parsed.cleared
+          .map((item) => Number(item))
+          .filter((item, index, array) => Number.isInteger(item) && item >= 1 && item <= stages.length && array.indexOf(item) === index);
+      }
+      if (clean.lastStageId > clean.highestUnlocked) clean.lastStageId = clean.highestUnlocked;
+      return clean;
+    } catch (error) {
+      return defaultProgress();
+    }
+  }
+
+  function saveProgress() {
+    try {
+      window.localStorage.setItem(STORAGE_KEY, JSON.stringify(progress));
+    } catch (error) {
+      // localStorageが使えない環境では、このセッション内だけで進行します。
+    }
+  }
+
+  function clampStageId(stageId) {
+    return Math.min(stages.length, Math.max(1, stageId));
+  }
+
+  function clampStageIndex(index) {
+    return Math.min(stages.length - 1, Math.max(0, index));
+  }
+
+  function isStageCleared(stageId) {
+    return progress.cleared.includes(stageId);
+  }
+
+  function isStageUnlocked(stageId) {
+    return stageId <= progress.highestUnlocked;
+  }
+
+  function markCurrentStageCleared() {
+    const stage = currentStage();
+    if (!isStageCleared(stage.id)) {
+      progress.cleared.push(stage.id);
+      progress.cleared.sort((a, b) => a - b);
+    }
+    if (stage.id < stages.length) {
+      progress.highestUnlocked = Math.max(progress.highestUnlocked, stage.id + 1);
+    } else {
+      progress.highestUnlocked = Math.max(progress.highestUnlocked, stage.id);
+    }
+    progress.lastStageId = stage.id;
+    saveProgress();
+  }
+
+  function resetProgress() {
+    const fresh = defaultProgress();
+    progress.highestUnlocked = fresh.highestUnlocked;
+    progress.cleared = fresh.cleared;
+    progress.lastStageId = fresh.lastStageId;
+    currentStageIndex = 0;
+    saveProgress();
+    startGame();
+    stageButtonsElement.scrollIntoView({ behavior: "smooth", block: "nearest" });
+  }
 
   function currentStage() {
     return stages[currentStageIndex];
@@ -80,6 +164,8 @@
 
   function startGame() {
     const stage = currentStage();
+    progress.lastStageId = stage.id;
+    saveProgress();
     board = makeEmptyBoard();
     selected = null;
     score = 0;
@@ -94,6 +180,7 @@
     stageStoryElement.textContent = stage.story;
     targetLabel.textContent = stage.targetScore;
     boardElement.setAttribute("aria-label", `${stage.rows}かける${stage.cols}のマッチ3盤面`);
+    document.body.classList.toggle("cols-8", stage.cols === 8);
     document.body.classList.toggle("cols-7", stage.cols === 7);
     document.body.classList.toggle("cols-6", stage.cols === 6);
 
@@ -107,6 +194,7 @@
     }
 
     setMessage(`${stage.name}。隣同士を入れ替えて、3つ以上そろえてね。`);
+    updateStageButtons();
     render();
   }
 
@@ -129,6 +217,47 @@
     const horizontal = col >= 2 && board[row][col - 1] === icon && board[row][col - 2] === icon;
     const vertical = row >= 2 && board[row - 1][col] === icon && board[row - 2][col] === icon;
     return horizontal || vertical;
+  }
+
+  function updateStageButtons() {
+    stageButtonsElement.innerHTML = "";
+    for (const stage of stages) {
+      const button = document.createElement("button");
+      button.type = "button";
+      button.className = "stage-button";
+      const unlocked = isStageUnlocked(stage.id);
+      const cleared = isStageCleared(stage.id);
+      const current = currentStage().id === stage.id;
+      if (!unlocked) button.classList.add("locked");
+      if (current) button.classList.add("current");
+      button.disabled = !unlocked || isBusy;
+      const status = cleared ? "クリア済み" : unlocked ? "挑戦できる" : `ステージ${stage.id - 1}クリアで解放`;
+      const mark = cleared ? "✅" : unlocked ? "🔓" : "🔒";
+      button.innerHTML = `
+        <strong>${mark} ステージ${stage.id}</strong>
+        <span class="stage-button-name">${stage.name}</span>
+        <span class="stage-button-status">${status}</span>
+      `;
+      button.addEventListener("click", () => selectStage(stage.id));
+      stageButtonsElement.appendChild(button);
+    }
+
+    const clearedCount = progress.cleared.length;
+    const openText = progress.highestUnlocked >= stages.length
+      ? "すべての畑が解放されています。"
+      : `ステージ${progress.highestUnlocked}まで解放中。`;
+    progressTextElement.textContent = `${openText} クリア済み ${clearedCount}/${stages.length}`;
+  }
+
+  function selectStage(stageId) {
+    if (isBusy || !isStageUnlocked(stageId)) return;
+    const nextIndex = clampStageIndex(stageId - 1);
+    if (currentStageIndex === nextIndex && !gameOver) {
+      stageButtonsElement.scrollIntoView({ behavior: "smooth", block: "nearest" });
+      return;
+    }
+    currentStageIndex = nextIndex;
+    startGame();
   }
 
   function render() {
@@ -168,8 +297,10 @@
 
     restartButton.disabled = isBusy;
     shuffleButton.disabled = isBusy || gameOver;
-    nextStageButton.hidden = !(stageCleared && currentStageIndex < stages.length - 1);
-    nextStageButton.disabled = isBusy || !(stageCleared && currentStageIndex < stages.length - 1);
+    const hasUnlockedNext = stageCleared && currentStageIndex < stages.length - 1 && isStageUnlocked(stages[currentStageIndex + 1].id);
+    nextStageButton.hidden = !hasUnlockedNext;
+    nextStageButton.disabled = isBusy || !hasUnlockedNext;
+    updateStageButtons();
   }
 
   async function handleCellClick(row, col) {
@@ -382,6 +513,7 @@
     if (score >= stage.targetScore) {
       gameOver = true;
       stageCleared = true;
+      markCurrentStageCleared();
       messageElement.className = "message win";
       const hasNext = currentStageIndex < stages.length - 1;
       setMessage(hasNext ? `${stage.clearMessage} 次の畑へ進めるよ。` : stage.clearMessage);
@@ -462,8 +594,17 @@
   }
 
   restartButton.addEventListener("click", startGame);
+  stageListButton.addEventListener("click", () => {
+    stageButtonsElement.scrollIntoView({ behavior: "smooth", block: "nearest" });
+  });
+  resetProgressButton.addEventListener("click", () => {
+    const ok = window.confirm("クリア状況をリセットして、ステージ1からに戻しますか？");
+    if (ok) resetProgress();
+  });
   nextStageButton.addEventListener("click", () => {
     if (isBusy || !stageCleared || currentStageIndex >= stages.length - 1) return;
+    const nextStageId = stages[currentStageIndex + 1].id;
+    if (!isStageUnlocked(nextStageId)) return;
     currentStageIndex += 1;
     startGame();
   });

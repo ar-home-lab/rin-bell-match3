@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-  <title>りんっベルの小庭｜マッチ3畑 v0.2</title>
+  <title>りんっベルの小庭｜マッチ3畑 v0.3</title>
   <link rel="stylesheet" href="style.css" />
 </head>
 <body class="cols-6">
@@ -19,6 +19,17 @@
         <p id="stageName" class="stage-name">ステージ1：地下畑の入口</p>
         <p id="stageStory" class="stage-story">まずは小庭の地下に、最初の畝を作ろう。</p>
       </header>
+
+      <section class="stage-select" aria-labelledby="stageSelectTitle">
+        <div class="stage-select-head">
+          <div>
+            <h2 id="stageSelectTitle">ステージを選ぶ</h2>
+            <p id="progressText">クリアすると次の畑が開きます。</p>
+          </div>
+          <button id="resetProgressButton" class="soft-button" type="button">進行をリセット</button>
+        </div>
+        <div id="stageButtons" class="stage-buttons" aria-label="ステージ一覧"></div>
+      </section>
 
       <section class="status-panel" aria-label="ゲーム状況">
         <div>
@@ -47,6 +58,7 @@
 
       <div class="controls">
         <button id="restartButton" type="button">もう一度</button>
+        <button id="stageListButton" type="button">ステージ一覧へ</button>
         <button id="nextStageButton" type="button" hidden>次の畑へ</button>
         <button id="shuffleButton" type="button">畑を整える</button>
       </div>
@@ -54,15 +66,16 @@
       <details class="rules">
         <summary>今日の土台ルール</summary>
         <ul>
-          <li>v0.2は3ステージ制の土台版です。</li>
+          <li>v0.3はステージ選択とクリア状況保存つきの土台版です。</li>
           <li>隣同士だけ入れ替えできます。</li>
           <li>3つ以上そろうと消えて、上から新しいアイコンが落ちます。</li>
           <li>目標スコアに届いたらクリア。「次の畑へ」で進めます。</li>
+          <li>クリア済みステージはいつでも遊び直せます。未解放の畑は鍵つきです。</li>
           <li>白狼とプリンは特別枠として、まだ柵の向こうで待機中です。</li>
         </ul>
       </details>
 
-      <p class="version">りんっベルの小庭｜マッチ3畑 v0.2 / 3ステージ土台版</p>
+      <p class="version">りんっベルの小庭｜マッチ3畑 v0.3 / ステージ選択＋クリア保存版</p>
     </section>
   </main>
 
