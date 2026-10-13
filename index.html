@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-  <title>りんっベルの小庭｜マッチ3畑 v0.8.1</title>
+  <title>りんっベルの小庭｜マッチ3畑 v0.8.2</title>
   <link rel="stylesheet" href="style.css" />
 </head>
 <body class="cols-6">
@@ -27,9 +27,23 @@
             <p id="progressText">クリアすると次の畑が開きます。</p>
             <p id="allClearBadge" class="all-clear-badge" hidden>🌙 全10ステージクリア済み｜地下畑完成🎉</p>
           </div>
-          <button id="resetProgressButton" class="soft-button" type="button">進行をリセット</button>
+          <div class="stage-actions">
+            <button id="howToToggleButton" class="soft-button" type="button" aria-expanded="false" aria-controls="howToPanel">遊び方</button>
+            <button id="resetProgressButton" class="soft-button danger-soft" type="button">進行リセット（この端末）</button>
+          </div>
         </div>
         <div id="stageButtons" class="stage-buttons" aria-label="ステージ一覧"></div>
+      </section>
+
+      <section id="howToPanel" class="how-to-panel" aria-labelledby="howToTitle" hidden>
+        <h2 id="howToTitle">はじめて遊ぶ人へ</h2>
+        <ul>
+          <li>隣同士のアイコンを入れ替えて、縦か横に3つ以上そろえるゲームです。</li>
+          <li>4つ以上そろえると、ステージ6以降では🍮が生まれることがあります。🍮をタップすると手数が+2されます。</li>
+          <li>5つ以上そろえると、ステージ6以降では🐺が生まれることがあります。🐺をタップすると周囲3×3を消してくれます。</li>
+          <li>🍮と🐺をタップしても手数は減りません。</li>
+          <li>クリア状況は、この端末・このブラウザだけに保存されます。別のスマホやPCの記録とは混ざりません。</li>
+        </ul>
       </section>
 
       <section class="status-panel" aria-label="ゲーム状況">
@@ -58,7 +72,7 @@
         <div class="reward-icons" aria-hidden="true">🐺 🍮</div>
         <h2>白狼とプリン、予告出演</h2>
         <p>ステージ5まで耕したごほうびに、柵の向こうから特別枠のふたりが顔を出したよ。いつか特別な役目を持って出るかもしれないふたりが、今日は顔見せだけしてくれたよ。</p>
-        <p class="reward-note">v0.8.1では🍮に加えて、🐺がステージ6以降の特殊ピースとして試験登場します。5個以上そろえると白狼が生まれ、タップすると周囲3×3を切り開きます。L字やT字の5個マッチも白狼の対象です。</p>
+        <p class="reward-note">v0.8.2では🍮に加えて、🐺がステージ6以降の特殊ピースとして試験登場します。5個以上そろえると白狼が生まれ、タップすると周囲3×3を切り開きます。L字やT字の5個マッチも白狼の対象です。</p>
       </section>
 
       <section class="board-wrap" aria-label="パズル盤面">
@@ -75,16 +89,16 @@
       <details class="rules">
         <summary>今日の土台ルール</summary>
         <ul>
-          <li>v0.8.1はステージ10までの畑に、ステージ6以降限定で🍮と🐺の特殊ピースを試験導入し、L字・T字の5個マッチでも白狼が生まれるよう調整した版です。</li>
+          <li>v0.8.2はステージ10までの畑に、配布前の遊び方案内と端末保存メモを追加した第一完成形です。</li>
           <li>隣同士だけ入れ替えできます。</li>
           <li>3つ以上そろうと消えて、上から新しいアイコンが落ちます。</li>
           <li>目標スコアに届いたらクリア。「次の畑へ」で進めます。ステージは10まであります。</li>
-          <li>クリア済みステージはいつでも遊び直せます。未解放の畑は鍵つきです。</li>
+          <li>クリア済みステージはいつでも遊び直せます。未解放の畑は鍵つきです。クリア状況はこの端末・このブラウザだけに保存されます。</li>
           <li>ステージ6以降は🧶と🌱が通常ピースとして登場します。同じ絵柄を4つ以上そろえると🍮、5つ以上そろえると🐺が生まれます。1手につき特殊ピース生成は1個までで、🐺が優先されます。</li>
         </ul>
       </details>
 
-      <p class="version">りんっベルの小庭｜マッチ3畑 v0.8.1 / 白狼5個判定調整版</p>
+      <p class="version">りんっベルの小庭｜マッチ3畑 v0.8.2 / 配布前ちょい整え版</p>
     </section>
   </main>
 

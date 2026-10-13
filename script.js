@@ -1,7 +1,7 @@
 (() => {
   "use strict";
 
-  const VERSION = "v0.8.1";
+  const VERSION = "v0.8.2";
   const PUDDING = "🍮";
   const WOLF = "🐺";
   const SPECIAL_FROM_STAGE = 6;
@@ -149,6 +149,8 @@
   const nextStageButton = document.getElementById("nextStageButton");
   const shuffleButton = document.getElementById("shuffleButton");
   const resetProgressButton = document.getElementById("resetProgressButton");
+  const howToToggleButton = document.getElementById("howToToggleButton");
+  const howToPanel = document.getElementById("howToPanel");
   const rewardPanel = document.getElementById("rewardPanel");
 
   const progress = loadProgress();
@@ -954,8 +956,19 @@
   stageListButton.addEventListener("click", () => {
     (stageSelectPanel || stageButtonsElement).scrollIntoView({ behavior: "smooth", block: "nearest" });
   });
+
+  howToToggleButton.addEventListener("click", () => {
+    const willOpen = howToPanel.hidden;
+    howToPanel.hidden = !willOpen;
+    howToToggleButton.setAttribute("aria-expanded", String(willOpen));
+    howToToggleButton.textContent = willOpen ? "遊び方を閉じる" : "遊び方";
+    if (willOpen) {
+      howToPanel.scrollIntoView({ behavior: "smooth", block: "nearest" });
+    }
+  });
+
   resetProgressButton.addEventListener("click", () => {
-    const ok = window.confirm("クリア状況をリセットして、ステージ1からに戻しますか？");
+    const ok = window.confirm("この端末・このブラウザに保存されたクリア状況をリセットして、ステージ1からに戻しますか？\n別のスマホやPCの記録は消えません。");
     if (ok) resetProgress();
   });
   nextStageButton.addEventListener("click", () => {

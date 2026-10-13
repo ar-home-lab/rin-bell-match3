@@ -178,6 +178,42 @@ h1 {
   margin-bottom: 12px;
 }
 
+.stage-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  flex: 0 0 auto;
+}
+
+.how-to-panel {
+  margin: 0 0 18px;
+  padding: 14px 16px;
+  border: 1px solid rgba(118, 226, 191, 0.34);
+  border-radius: 22px;
+  background: rgba(118, 226, 191, 0.12);
+}
+
+.how-to-panel[hidden] {
+  display: none;
+}
+
+.how-to-panel h2 {
+  margin: 0 0 8px;
+  font-size: 1.05rem;
+}
+
+.how-to-panel ul {
+  margin: 0;
+  padding-left: 1.2em;
+  color: var(--text-soft);
+  line-height: 1.65;
+  font-size: 0.9rem;
+}
+
+.how-to-panel li + li {
+  margin-top: 4px;
+}
+
 .stage-select h2 {
   margin: 0;
   font-size: clamp(1.05rem, 4vw, 1.35rem);
@@ -619,5 +655,22 @@ button:disabled:focus-visible {
 
   .cell {
     border-radius: 14px;
+  }
+}
+
+
+.danger-soft {
+  border-color: rgba(255, 154, 169, 0.38);
+}
+
+@media (max-width: 520px) {
+  .stage-select-head {
+    flex-direction: column;
+  }
+
+  .stage-actions {
+    width: 100%;
+    display: grid;
+    grid-template-columns: 1fr;
   }
 }
