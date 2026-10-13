@@ -460,6 +460,20 @@ h1 {
   transform: translateX(-0.06em) scale(1.08);
 }
 
+.cell.wolf-cell {
+  background:
+    radial-gradient(circle at 50% 38%, rgba(225, 242, 255, 0.46), transparent 58%),
+    linear-gradient(180deg, rgba(209, 232, 255, 0.36), rgba(123, 171, 214, 0.18));
+  box-shadow:
+    0 0 0 3px rgba(181, 220, 255, 0.30),
+    0 12px 22px rgba(0, 0, 0, 0.28),
+    inset 0 1px 0 rgba(255, 255, 255, 0.48);
+}
+
+.cell.wolf-cell .piece {
+  transform: translateX(-0.08em) scale(1.08);
+}
+
 .cell.selected {
   background: rgba(255, 217, 88, 0.42);
   box-shadow:

@@ -1,9 +1,10 @@
 (() => {
   "use strict";
 
-  const VERSION = "v0.7";
+  const VERSION = "v0.8";
   const PUDDING = "🍮";
-  const PUDDING_FROM_STAGE = 6;
+  const WOLF = "🐺";
+  const SPECIAL_FROM_STAGE = 6;
   const PUDDING_BONUS_MOVES = 2;
   const STORAGE_KEY = "rinBellMatch3Progress.v1";
 
@@ -161,7 +162,7 @@
   let stageCleared = false;
   let comboDepth = 0;
   let rewardFocusedThisRun = false;
-  let puddingCreatedThisMove = false;
+  let specialCreatedThisMove = false;
 
   function defaultProgress() {
     return {
@@ -274,7 +275,7 @@
     gameOver = false;
     stageCleared = false;
     comboDepth = 0;
-    puddingCreatedThisMove = false;
+    specialCreatedThisMove = false;
     messageElement.className = "message";
     stageLabel.textContent = stage.id;
     stageNameElement.textContent = `ステージ${stage.id}：${stage.name}`;
@@ -384,7 +385,9 @@
 
         const icon = board[row][col] ?? "";
         const isPudding = icon === PUDDING;
+        const isWolf = icon === WOLF;
         if (isPudding) cell.classList.add("special", "pudding-cell");
+        if (isWolf) cell.classList.add("special", "wolf-cell");
 
         const piece = document.createElement("span");
         piece.className = "piece";
@@ -395,7 +398,12 @@
         cell.dataset.row = String(row);
         cell.dataset.col = String(col);
         cell.setAttribute("role", "gridcell");
-        cell.setAttribute("aria-label", isPudding ? `${row + 1}行${col + 1}列 プリン。タップすると手数が2増えます。` : `${row + 1}行${col + 1}列 ${icon || "空"}`);
+        const specialLabel = isPudding
+          ? `${row + 1}行${col + 1}列 プリン。タップすると手数が2増えます。`
+          : isWolf
+            ? `${row + 1}行${col + 1}列 白狼。タップすると周囲3かける3を消します。`
+            : `${row + 1}行${col + 1}列 ${icon || "空"}`;
+        cell.setAttribute("aria-label", specialLabel);
         cell.disabled = isBusy || gameOver;
 
         if (selected && selected.row === row && selected.col === col) {
@@ -434,6 +442,12 @@
     if (board[row][col] === PUDDING) {
       selected = null;
       await activatePudding(row, col);
+      return;
+    }
+
+    if (board[row][col] === WOLF) {
+      selected = null;
+      await activateWolf(row, col);
       return;
     }
 
@@ -486,7 +500,7 @@
 
     movesLeft -= 1;
     comboDepth = 0;
-    puddingCreatedThisMove = false;
+    specialCreatedThisMove = false;
     setMessage("りんっ。そろった！");
     render();
     await wait(180);
@@ -507,11 +521,11 @@
   }
 
   function isSpecialPiece(icon) {
-    return icon === PUDDING;
+    return icon === PUDDING || icon === WOLF;
   }
 
-  function canCreatePuddingForCurrentStage() {
-    return currentStage().id >= PUDDING_FROM_STAGE;
+  function canCreateSpecialForCurrentStage() {
+    return currentStage().id >= SPECIAL_FROM_STAGE;
   }
 
   function findMatchGroups(targetBoard) {
@@ -573,12 +587,28 @@
     return matched;
   }
 
-  function findPuddingSpawnTarget(matchGroups) {
-    if (!canCreatePuddingForCurrentStage() || puddingCreatedThisMove) return null;
-    const longGroup = matchGroups.find((group) => group.cells.length >= 4 && !isSpecialPiece(group.icon));
-    if (!longGroup) return null;
-    return longGroup.cells[Math.floor(longGroup.cells.length / 2)] ?? longGroup.cells[0] ?? null;
+  function findSpecialSpawnTarget(matchGroups) {
+    if (!canCreateSpecialForCurrentStage() || specialCreatedThisMove) return null;
+
+    const wolfGroup = matchGroups.find((group) => group.cells.length >= 5 && !isSpecialPiece(group.icon));
+    if (wolfGroup) {
+      return {
+        icon: WOLF,
+        target: wolfGroup.cells[Math.floor(wolfGroup.cells.length / 2)] ?? wolfGroup.cells[0] ?? null,
+      };
+    }
+
+    const puddingGroup = matchGroups.find((group) => group.cells.length >= 4 && !isSpecialPiece(group.icon));
+    if (puddingGroup) {
+      return {
+        icon: PUDDING,
+        target: puddingGroup.cells[Math.floor(puddingGroup.cells.length / 2)] ?? puddingGroup.cells[0] ?? null,
+      };
+    }
+
+    return null;
   }
+
 
   async function resolveBoard() {
     let matchGroups = findMatchGroups(board);
@@ -587,33 +617,37 @@
     let totalPoints = 0;
     let maxCombo = 0;
     let reshuffled = false;
-    let puddingCreated = false;
+    let specialCreatedIcon = null;
 
     while (matches.size > 0) {
       const stage = currentStage();
       comboDepth += 1;
       maxCombo = comboDepth;
       totalPieces += matches.size;
-      const puddingTarget = findPuddingSpawnTarget(matchGroups);
+      const specialSpawn = findSpecialSpawnTarget(matchGroups);
       markMatchedCells(matches);
       const gained = matches.size * stage.pointsPerPiece * comboDepth;
       totalPoints += gained;
       score += gained;
-      const puddingHint = puddingTarget ? " 🍮が生まれそう…" : "";
-      setMessage(comboDepth === 1 ? `りんっ！ ${matches.size}個そろったよ。+${gained}${puddingHint}` : `連鎖りんっ！ ${comboDepth}連鎖目、${matches.size}個そろったよ。+${gained}${puddingHint}`);
+      const specialHint = specialSpawn
+        ? specialSpawn.icon === WOLF
+          ? " 🐺が駆けてきそう…"
+          : " 🍮が生まれそう…"
+        : "";
+      setMessage(comboDepth === 1 ? `りんっ！ ${matches.size}個そろったよ。+${gained}${specialHint}` : `連鎖りんっ！ ${comboDepth}連鎖目、${matches.size}個そろったよ。+${gained}${specialHint}`);
       render();
       await wait(comboDepth === 1 ? 650 : 820);
 
       removeMatches(matches);
       collapseColumns();
       refillBoard();
-      if (puddingTarget) {
-        board[puddingTarget.row][puddingTarget.col] = PUDDING;
-        puddingCreatedThisMove = true;
-        puddingCreated = true;
+      if (specialSpawn && specialSpawn.target) {
+        board[specialSpawn.target.row][specialSpawn.target.col] = specialSpawn.icon;
+        specialCreatedThisMove = true;
+        specialCreatedIcon = specialSpawn.icon;
       }
       render();
-      await wait(puddingTarget ? 420 : 260);
+      await wait(specialSpawn ? 420 : 260);
 
       matchGroups = findMatchGroups(board);
       matches = findMatches(board);
@@ -629,13 +663,18 @@
       await wait(220);
     }
 
-    const puddingText = puddingCreated ? " 🍮が生まれたよ。タップすると手数+2！" : "";
+    const specialText = specialCreatedIcon === WOLF
+      ? " 🐺が生まれたよ。タップすると周囲を切り開く！"
+      : specialCreatedIcon === PUDDING
+        ? " 🍮が生まれたよ。タップすると手数+2！"
+        : "";
     const message = maxCombo > 1
-      ? `連鎖りんっ！ ${maxCombo}連鎖、合計${totalPieces}個そろったよ。+${totalPoints}${puddingText}${reshuffled ? " 畑も整えたよ。" : ""}`
-      : `りんっ！ ${totalPieces}個そろったよ。+${totalPoints}${puddingText}${reshuffled ? " 畑も整えたよ。" : ""}`;
+      ? `連鎖りんっ！ ${maxCombo}連鎖、合計${totalPieces}個そろったよ。+${totalPoints}${specialText}${reshuffled ? " 畑も整えたよ。" : ""}`
+      : `りんっ！ ${totalPieces}個そろったよ。+${totalPoints}${specialText}${reshuffled ? " 畑も整えたよ。" : ""}`;
 
     return { maxCombo, totalPieces, totalPoints, reshuffled, message };
   }
+
 
   function markMatchedCells(matches) {
     for (const item of boardElement.children) {
@@ -716,6 +755,60 @@
     render();
     await wait(320);
     isBusy = false;
+    render();
+  }
+
+  async function activateWolf(row, col) {
+    if (board[row][col] !== WOLF || isBusy || gameOver) return;
+    isBusy = true;
+    selected = null;
+
+    const clearedCells = [];
+    let normalPieces = 0;
+    for (let clearRow = row - 1; clearRow <= row + 1; clearRow += 1) {
+      for (let clearCol = col - 1; clearCol <= col + 1; clearCol += 1) {
+        if (!board[clearRow] || board[clearRow][clearCol] === undefined || board[clearRow][clearCol] === null) continue;
+        const icon = board[clearRow][clearCol];
+        clearedCells.push({ row: clearRow, col: clearCol });
+        if (!isSpecialPiece(icon)) normalPieces += 1;
+      }
+    }
+
+    const gained = normalPieces * currentStage().pointsPerPiece;
+    score += gained;
+    for (const cell of clearedCells) {
+      board[cell.row][cell.col] = null;
+    }
+
+    setMessage(`白狼が畑を駆けたよ。周囲${clearedCells.length}マスを切り開いた！ +${gained}🐺`);
+    render();
+    await wait(520);
+
+    collapseColumns();
+    refillBoard();
+    render();
+    await wait(260);
+
+    comboDepth = 0;
+    specialCreatedThisMove = true;
+    let summary = null;
+    if (findMatches(board).size > 0) {
+      summary = await resolveBoard();
+    } else if (!hasAnyPossibleMove(board)) {
+      setMessage("動かせるところがなくなったから、畑を整えるね。");
+      render();
+      await wait(700);
+      shuffleBoardUntilPlayable();
+      render();
+      await wait(220);
+    }
+
+    const finished = checkGameState();
+    isBusy = false;
+    if (!finished) {
+      messageElement.className = "message";
+      setMessage(summary ? `白狼のあと、${summary.message}` : `白狼が畑を切り開いたよ。+${gained}。手数は減ってないよ。`);
+    }
     render();
   }
 
