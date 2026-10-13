@@ -96,7 +96,13 @@
         const cell = document.createElement("button");
         cell.type = "button";
         cell.className = "cell";
-        cell.textContent = board[row][col] ?? "";
+
+        const piece = document.createElement("span");
+        piece.className = "piece";
+        piece.textContent = board[row][col] ?? "";
+        piece.setAttribute("aria-hidden", "true");
+        cell.appendChild(piece);
+
         cell.dataset.row = String(row);
         cell.dataset.col = String(col);
         cell.setAttribute("role", "gridcell");
