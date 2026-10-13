@@ -1,7 +1,7 @@
 (() => {
   "use strict";
 
-  const VERSION = "v0.4";
+  const VERSION = "v0.4.1";
   const STORAGE_KEY = "rinBellMatch3Progress.v1";
 
   const stages = [
@@ -324,6 +324,7 @@
     }
 
     restartButton.disabled = isBusy;
+    shuffleButton.hidden = gameOver;
     shuffleButton.disabled = isBusy || gameOver;
     const hasUnlockedNext = stageCleared && currentStageIndex < stages.length - 1 && isStageUnlocked(stages[currentStageIndex + 1].id);
     nextStageButton.hidden = !hasUnlockedNext;
@@ -552,7 +553,7 @@
       gameOver = true;
       stageCleared = false;
       messageElement.className = "message lose";
-      setMessage("手数を使い切ったよ。もう一回、畑を整えて挑戦しよう。");
+      setMessage("手数を使い切ったよ。「もう一度」で同じステージにもう一回挑戦しよう。");
       return true;
     }
 

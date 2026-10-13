@@ -423,6 +423,18 @@ button:active {
   transform: translateY(1px);
 }
 
+button:disabled {
+  opacity: 0.52;
+  cursor: not-allowed;
+  box-shadow: none;
+}
+
+button:disabled:hover,
+button:disabled:focus-visible {
+  background: rgba(255, 255, 255, 0.18);
+  transform: none;
+}
+
 .rules {
   margin-top: 18px;
   color: var(--text-soft);
