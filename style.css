@@ -16,6 +16,12 @@
   --board-pad: clamp(10px, 3vw, 18px);
   --cell-gap: clamp(5px, 1.5vw, 7px);
   --cell-size: min(64px, calc((100vw - (var(--outer-pad) * 2) - (var(--card-pad) * 2) - (var(--board-pad) * 2) - (var(--cell-gap) * 5) - 8px) / 6));
+  --board-width: calc((var(--cell-size) * 6) + (var(--cell-gap) * 5) + (var(--board-pad) * 2));
+}
+
+body.cols-7 {
+  --cell-size: min(56px, calc((100vw - (var(--outer-pad) * 2) - (var(--card-pad) * 2) - (var(--board-pad) * 2) - (var(--cell-gap) * 6) - 8px) / 7));
+  --board-width: calc((var(--cell-size) * 7) + (var(--cell-gap) * 6) + (var(--board-pad) * 2));
 }
 
 * {
@@ -135,6 +141,21 @@ h1 {
   line-height: 1.7;
 }
 
+.stage-name {
+  margin: 14px auto 0;
+  font-weight: 900;
+  color: var(--text);
+  letter-spacing: 0.02em;
+}
+
+.stage-story {
+  margin: 6px auto 0;
+  max-width: 32em;
+  color: var(--text-soft);
+  line-height: 1.65;
+  font-size: 0.95rem;
+}
+
 .status-panel {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
@@ -190,7 +211,7 @@ h1 {
   display: grid;
   place-items: center;
   width: 100%;
-  max-width: calc((var(--cell-size) * 6) + (var(--cell-gap) * 5) + (var(--board-pad) * 2));
+  max-width: var(--board-width);
   justify-self: center;
   overflow: hidden;
   margin: 8px 0 18px;
@@ -204,8 +225,6 @@ h1 {
 
 .board {
   display: grid;
-  grid-template-columns: repeat(6, var(--cell-size));
-  grid-template-rows: repeat(6, var(--cell-size));
   gap: var(--cell-gap);
   touch-action: manipulation;
   user-select: none;
@@ -282,6 +301,10 @@ h1 {
   gap: 12px;
 }
 
+button[hidden] {
+  display: none;
+}
+
 button {
   min-height: 46px;
   padding: 10px 18px;
@@ -309,6 +332,13 @@ button:active {
   margin-top: 18px;
   color: var(--text-soft);
   line-height: 1.7;
+}
+
+.version {
+  margin: 16px 0 0;
+  text-align: center;
+  color: rgba(255, 247, 215, 0.58);
+  font-size: 0.78rem;
 }
 
 .rules summary {

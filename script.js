@@ -1,9 +1,14 @@
 (() => {
   "use strict";
 
+  const VERSION = "v0.2";
+
   const stages = [
     {
       id: 1,
+      name: "地下畑の入口",
+      story: "まずは小庭の地下に、最初の畝を作ろう。",
+      clearMessage: "ステージ1クリア！ 地下畑の入口を耕せたよ。りんっ🔔",
       rows: 6,
       cols: 6,
       icons: ["🔔", "🌙", "🐇", "💌", "🪨"],
@@ -11,45 +16,86 @@
       targetScore: 800,
       pointsPerPiece: 10,
     },
+    {
+      id: 2,
+      name: "ベルの畝を広げよう",
+      story: "少しだけ手数が少ないよ。ベルの音を頼りに、もう一面広げよう。",
+      clearMessage: "ステージ2クリア！ ベルの畝が広がったよ。りんりんっ🔔",
+      rows: 6,
+      cols: 6,
+      icons: ["🔔", "🌙", "🐇", "💌", "🪨"],
+      moves: 18,
+      targetScore: 1000,
+      pointsPerPiece: 10,
+    },
+    {
+      id: 3,
+      name: "月明かりの広い畑",
+      story: "最後は7×7。月明かりの下で、広い畑をゆっくり耕そう。",
+      clearMessage: "ステージ3クリア！ 月明かりの広い畑まで耕せたよ。今日の地下畑、完成🌙",
+      rows: 7,
+      cols: 7,
+      icons: ["🔔", "🌙", "🐇", "💌", "🪨"],
+      moves: 22,
+      targetScore: 1400,
+      pointsPerPiece: 10,
+    },
   ];
 
-  const stage = stages[0];
   const boardElement = document.getElementById("board");
   const stageLabel = document.getElementById("stageLabel");
+  const stageNameElement = document.getElementById("stageName");
+  const stageStoryElement = document.getElementById("stageStory");
   const scoreLabel = document.getElementById("scoreLabel");
   const targetLabel = document.getElementById("targetLabel");
   const movesLabel = document.getElementById("movesLabel");
   const messageElement = document.getElementById("message");
   const restartButton = document.getElementById("restartButton");
+  const nextStageButton = document.getElementById("nextStageButton");
   const shuffleButton = document.getElementById("shuffleButton");
 
+  let currentStageIndex = 0;
   let board = [];
   let selected = null;
   let score = 0;
-  let movesLeft = stage.moves;
+  let movesLeft = currentStage().moves;
   let isBusy = false;
   let gameOver = false;
+  let stageCleared = false;
   let comboDepth = 0;
 
+  function currentStage() {
+    return stages[currentStageIndex];
+  }
+
   function randomIcon() {
+    const stage = currentStage();
     return stage.icons[Math.floor(Math.random() * stage.icons.length)];
   }
 
   function makeEmptyBoard() {
+    const stage = currentStage();
     return Array.from({ length: stage.rows }, () => Array(stage.cols).fill(null));
   }
 
   function startGame() {
+    const stage = currentStage();
     board = makeEmptyBoard();
     selected = null;
     score = 0;
     movesLeft = stage.moves;
     isBusy = false;
     gameOver = false;
+    stageCleared = false;
     comboDepth = 0;
     messageElement.className = "message";
     stageLabel.textContent = stage.id;
+    stageNameElement.textContent = `ステージ${stage.id}：${stage.name}`;
+    stageStoryElement.textContent = stage.story;
     targetLabel.textContent = stage.targetScore;
+    boardElement.setAttribute("aria-label", `${stage.rows}かける${stage.cols}のマッチ3盤面`);
+    document.body.classList.toggle("cols-7", stage.cols === 7);
+    document.body.classList.toggle("cols-6", stage.cols === 6);
 
     fillBoardWithoutStartingMatches();
 
@@ -60,11 +106,12 @@
       safety += 1;
     }
 
-    setMessage("隣同士のアイコンを入れ替えて、3つ以上そろえてね。");
+    setMessage(`${stage.name}。隣同士を入れ替えて、3つ以上そろえてね。`);
     render();
   }
 
   function fillBoardWithoutStartingMatches() {
+    const stage = currentStage();
     for (let row = 0; row < stage.rows; row += 1) {
       for (let col = 0; col < stage.cols; col += 1) {
         let icon = randomIcon();
@@ -85,6 +132,7 @@
   }
 
   function render() {
+    const stage = currentStage();
     scoreLabel.textContent = score;
     movesLabel.textContent = movesLeft;
     boardElement.style.gridTemplateColumns = `repeat(${stage.cols}, var(--cell-size))`;
@@ -120,6 +168,8 @@
 
     restartButton.disabled = isBusy;
     shuffleButton.disabled = isBusy || gameOver;
+    nextStageButton.hidden = !(stageCleared && currentStageIndex < stages.length - 1);
+    nextStageButton.disabled = isBusy || !(stageCleared && currentStageIndex < stages.length - 1);
   }
 
   async function handleCellClick(row, col) {
@@ -194,6 +244,7 @@
   }
 
   function findMatches(targetBoard) {
+    const stage = currentStage();
     const matched = new Set();
 
     for (let row = 0; row < stage.rows; row += 1) {
@@ -245,6 +296,7 @@
     let reshuffled = false;
 
     while (matches.size > 0) {
+      const stage = currentStage();
       comboDepth += 1;
       maxCombo = comboDepth;
       totalPieces += matches.size;
@@ -300,6 +352,7 @@
   }
 
   function collapseColumns() {
+    const stage = currentStage();
     for (let col = 0; col < stage.cols; col += 1) {
       const remaining = [];
       for (let row = stage.rows - 1; row >= 0; row -= 1) {
@@ -314,6 +367,7 @@
   }
 
   function refillBoard() {
+    const stage = currentStage();
     for (let row = 0; row < stage.rows; row += 1) {
       for (let col = 0; col < stage.cols; col += 1) {
         if (board[row][col] === null) {
@@ -324,15 +378,19 @@
   }
 
   function checkGameState() {
+    const stage = currentStage();
     if (score >= stage.targetScore) {
       gameOver = true;
+      stageCleared = true;
       messageElement.className = "message win";
-      setMessage("クリア！ 小庭の地下畑、今日はここまで耕せたよ。りんっ🔔");
+      const hasNext = currentStageIndex < stages.length - 1;
+      setMessage(hasNext ? `${stage.clearMessage} 次の畑へ進めるよ。` : stage.clearMessage);
       return true;
     }
 
     if (movesLeft <= 0) {
       gameOver = true;
+      stageCleared = false;
       messageElement.className = "message lose";
       setMessage("手数を使い切ったよ。もう一回、畑を整えて挑戦しよう。");
       return true;
@@ -347,6 +405,7 @@
   }
 
   function hasAnyPossibleMove(targetBoard) {
+    const stage = currentStage();
     for (let row = 0; row < stage.rows; row += 1) {
       for (let col = 0; col < stage.cols; col += 1) {
         const directions = [
@@ -368,6 +427,7 @@
   }
 
   function shuffleBoardUntilPlayable() {
+    const stage = currentStage();
     const pieces = board.flat();
     let safety = 0;
 
@@ -402,6 +462,11 @@
   }
 
   restartButton.addEventListener("click", startGame);
+  nextStageButton.addEventListener("click", () => {
+    if (isBusy || !stageCleared || currentStageIndex >= stages.length - 1) return;
+    currentStageIndex += 1;
+    startGame();
+  });
   shuffleButton.addEventListener("click", () => {
     if (isBusy || gameOver) return;
     selected = null;

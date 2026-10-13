@@ -3,10 +3,10 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-  <title>りんっベルの小庭｜マッチ3畑 v0.1.3</title>
+  <title>りんっベルの小庭｜マッチ3畑 v0.2</title>
   <link rel="stylesheet" href="style.css" />
 </head>
-<body>
+<body class="cols-6">
   <main class="app-shell">
     <section class="card" aria-label="りんっベルの小庭 マッチ3畑">
       <div class="moon moon-a" aria-hidden="true"></div>
@@ -16,6 +16,8 @@
         <p class="eyebrow">りんっベルの小庭 地下畑</p>
         <h1>マッチ3畑</h1>
         <p class="subtitle">🔔 🌙 🐇 💌 🪨 をそろえて、小庭の畑を耕そう。</p>
+        <p id="stageName" class="stage-name">ステージ1：地下畑の入口</p>
+        <p id="stageStory" class="stage-story">まずは小庭の地下に、最初の畝を作ろう。</p>
       </header>
 
       <section class="status-panel" aria-label="ゲーム状況">
@@ -45,19 +47,22 @@
 
       <div class="controls">
         <button id="restartButton" type="button">もう一度</button>
+        <button id="nextStageButton" type="button" hidden>次の畑へ</button>
         <button id="shuffleButton" type="button">畑を整える</button>
       </div>
 
       <details class="rules">
         <summary>今日の土台ルール</summary>
         <ul>
-          <li>6×6盤面、5種類の小庭アイコン。</li>
+          <li>v0.2は3ステージ制の土台版です。</li>
           <li>隣同士だけ入れ替えできます。</li>
           <li>3つ以上そろうと消えて、上から新しいアイコンが落ちます。</li>
-          <li>目標スコアに届いたらクリア。</li>
-          <li>白狼とプリンは特別枠として温存中です。</li>
+          <li>目標スコアに届いたらクリア。「次の畑へ」で進めます。</li>
+          <li>白狼とプリンは特別枠として、まだ柵の向こうで待機中です。</li>
         </ul>
       </details>
+
+      <p class="version">りんっベルの小庭｜マッチ3畑 v0.2 / 3ステージ土台版</p>
     </section>
   </main>
 
