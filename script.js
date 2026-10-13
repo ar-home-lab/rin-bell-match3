@@ -1,7 +1,10 @@
 (() => {
   "use strict";
 
-  const VERSION = "v0.6.1";
+  const VERSION = "v0.7";
+  const PUDDING = "🍮";
+  const PUDDING_FROM_STAGE = 6;
+  const PUDDING_BONUS_MOVES = 2;
   const STORAGE_KEY = "rinBellMatch3Progress.v1";
 
   const stages = [
@@ -158,6 +161,7 @@
   let stageCleared = false;
   let comboDepth = 0;
   let rewardFocusedThisRun = false;
+  let puddingCreatedThisMove = false;
 
   function defaultProgress() {
     return {
@@ -270,6 +274,7 @@
     gameOver = false;
     stageCleared = false;
     comboDepth = 0;
+    puddingCreatedThisMove = false;
     messageElement.className = "message";
     stageLabel.textContent = stage.id;
     stageNameElement.textContent = `ステージ${stage.id}：${stage.name}`;
@@ -377,16 +382,20 @@
         cell.type = "button";
         cell.className = "cell";
 
+        const icon = board[row][col] ?? "";
+        const isPudding = icon === PUDDING;
+        if (isPudding) cell.classList.add("special", "pudding-cell");
+
         const piece = document.createElement("span");
         piece.className = "piece";
-        piece.textContent = board[row][col] ?? "";
+        piece.textContent = icon;
         piece.setAttribute("aria-hidden", "true");
         cell.appendChild(piece);
 
         cell.dataset.row = String(row);
         cell.dataset.col = String(col);
         cell.setAttribute("role", "gridcell");
-        cell.setAttribute("aria-label", `${row + 1}行${col + 1}列 ${board[row][col] ?? "空"}`);
+        cell.setAttribute("aria-label", isPudding ? `${row + 1}行${col + 1}列 プリン。タップすると手数が2増えます。` : `${row + 1}行${col + 1}列 ${icon || "空"}`);
         cell.disabled = isBusy || gameOver;
 
         if (selected && selected.row === row && selected.col === col) {
@@ -421,6 +430,12 @@
 
   async function handleCellClick(row, col) {
     if (isBusy || gameOver) return;
+
+    if (board[row][col] === PUDDING) {
+      selected = null;
+      await activatePudding(row, col);
+      return;
+    }
 
     if (!selected) {
       selected = { row, col };
@@ -471,6 +486,7 @@
 
     movesLeft -= 1;
     comboDepth = 0;
+    puddingCreatedThisMove = false;
     setMessage("りんっ。そろった！");
     render();
     await wait(180);
@@ -490,23 +506,33 @@
     board[b.row][b.col] = temp;
   }
 
-  function findMatches(targetBoard) {
+  function isSpecialPiece(icon) {
+    return icon === PUDDING;
+  }
+
+  function canCreatePuddingForCurrentStage() {
+    return currentStage().id >= PUDDING_FROM_STAGE;
+  }
+
+  function findMatchGroups(targetBoard) {
     const stage = currentStage();
-    const matched = new Set();
+    const groups = [];
 
     for (let row = 0; row < stage.rows; row += 1) {
       let streakIcon = targetBoard[row][0];
       let streakStart = 0;
       for (let col = 1; col <= stage.cols; col += 1) {
         const current = col < stage.cols ? targetBoard[row][col] : null;
-        if (current && current === streakIcon) {
+        if (current && current === streakIcon && !isSpecialPiece(current)) {
           continue;
         }
         const streakLength = col - streakStart;
-        if (streakIcon && streakLength >= 3) {
+        if (streakIcon && !isSpecialPiece(streakIcon) && streakLength >= 3) {
+          const cells = [];
           for (let markCol = streakStart; markCol < col; markCol += 1) {
-            matched.add(key(row, markCol));
+            cells.push({ row, col: markCol });
           }
+          groups.push({ icon: streakIcon, cells, direction: "horizontal" });
         }
         streakIcon = current;
         streakStart = col;
@@ -518,49 +544,78 @@
       let streakStart = 0;
       for (let row = 1; row <= stage.rows; row += 1) {
         const current = row < stage.rows ? targetBoard[row][col] : null;
-        if (current && current === streakIcon) {
+        if (current && current === streakIcon && !isSpecialPiece(current)) {
           continue;
         }
         const streakLength = row - streakStart;
-        if (streakIcon && streakLength >= 3) {
+        if (streakIcon && !isSpecialPiece(streakIcon) && streakLength >= 3) {
+          const cells = [];
           for (let markRow = streakStart; markRow < row; markRow += 1) {
-            matched.add(key(markRow, col));
+            cells.push({ row: markRow, col });
           }
+          groups.push({ icon: streakIcon, cells, direction: "vertical" });
         }
         streakIcon = current;
         streakStart = row;
       }
     }
 
+    return groups;
+  }
+
+  function findMatches(targetBoard) {
+    const matched = new Set();
+    for (const group of findMatchGroups(targetBoard)) {
+      for (const cell of group.cells) {
+        matched.add(key(cell.row, cell.col));
+      }
+    }
     return matched;
   }
 
+  function findPuddingSpawnTarget(matchGroups) {
+    if (!canCreatePuddingForCurrentStage() || puddingCreatedThisMove) return null;
+    const longGroup = matchGroups.find((group) => group.cells.length >= 4 && !isSpecialPiece(group.icon));
+    if (!longGroup) return null;
+    return longGroup.cells[Math.floor(longGroup.cells.length / 2)] ?? longGroup.cells[0] ?? null;
+  }
+
   async function resolveBoard() {
+    let matchGroups = findMatchGroups(board);
     let matches = findMatches(board);
     let totalPieces = 0;
     let totalPoints = 0;
     let maxCombo = 0;
     let reshuffled = false;
+    let puddingCreated = false;
 
     while (matches.size > 0) {
       const stage = currentStage();
       comboDepth += 1;
       maxCombo = comboDepth;
       totalPieces += matches.size;
+      const puddingTarget = findPuddingSpawnTarget(matchGroups);
       markMatchedCells(matches);
       const gained = matches.size * stage.pointsPerPiece * comboDepth;
       totalPoints += gained;
       score += gained;
-      setMessage(comboDepth === 1 ? `りんっ！ ${matches.size}個そろったよ。+${gained}` : `連鎖りんっ！ ${comboDepth}連鎖目、${matches.size}個そろったよ。+${gained}`);
+      const puddingHint = puddingTarget ? " 🍮が生まれそう…" : "";
+      setMessage(comboDepth === 1 ? `りんっ！ ${matches.size}個そろったよ。+${gained}${puddingHint}` : `連鎖りんっ！ ${comboDepth}連鎖目、${matches.size}個そろったよ。+${gained}${puddingHint}`);
       render();
       await wait(comboDepth === 1 ? 650 : 820);
 
       removeMatches(matches);
       collapseColumns();
       refillBoard();
+      if (puddingTarget) {
+        board[puddingTarget.row][puddingTarget.col] = PUDDING;
+        puddingCreatedThisMove = true;
+        puddingCreated = true;
+      }
       render();
-      await wait(260);
+      await wait(puddingTarget ? 420 : 260);
 
+      matchGroups = findMatchGroups(board);
       matches = findMatches(board);
     }
 
@@ -574,9 +629,10 @@
       await wait(220);
     }
 
+    const puddingText = puddingCreated ? " 🍮が生まれたよ。タップすると手数+2！" : "";
     const message = maxCombo > 1
-      ? `連鎖りんっ！ ${maxCombo}連鎖、合計${totalPieces}個そろったよ。+${totalPoints}${reshuffled ? " 畑も整えたよ。" : ""}`
-      : `りんっ！ ${totalPieces}個そろったよ。+${totalPoints}${reshuffled ? " 畑も整えたよ。" : ""}`;
+      ? `連鎖りんっ！ ${maxCombo}連鎖、合計${totalPieces}個そろったよ。+${totalPoints}${puddingText}${reshuffled ? " 畑も整えたよ。" : ""}`
+      : `りんっ！ ${totalPieces}個そろったよ。+${totalPoints}${puddingText}${reshuffled ? " 畑も整えたよ。" : ""}`;
 
     return { maxCombo, totalPieces, totalPoints, reshuffled, message };
   }
@@ -648,6 +704,21 @@
     return false;
   }
 
+  async function activatePudding(row, col) {
+    if (board[row][col] !== PUDDING || isBusy || gameOver) return;
+    isBusy = true;
+    selected = null;
+    movesLeft += PUDDING_BONUS_MOVES;
+    board[row][col] = null;
+    setMessage(`プリンを食べたよ。手数+${PUDDING_BONUS_MOVES}！ ほっと一息🍮`);
+    collapseColumns();
+    refillBoard();
+    render();
+    await wait(320);
+    isBusy = false;
+    render();
+  }
+
   function cloneBoard(targetBoard) {
     return targetBoard.map((row) => row.slice());
   }
@@ -663,6 +734,7 @@
 
         for (const next of directions) {
           if (next.row >= stage.rows || next.col >= stage.cols) continue;
+          if (isSpecialPiece(targetBoard[row][col]) || isSpecialPiece(targetBoard[next.row][next.col])) continue;
           const testBoard = cloneBoard(targetBoard);
           const temp = testBoard[row][col];
           testBoard[row][col] = testBoard[next.row][next.col];
