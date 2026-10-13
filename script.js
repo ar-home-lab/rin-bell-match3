@@ -1,7 +1,7 @@
 (() => {
   "use strict";
 
-  const VERSION = "v0.8";
+  const VERSION = "v0.8.1";
   const PUDDING = "🍮";
   const WOLF = "🐺";
   const SPECIAL_FROM_STAGE = 6;
@@ -590,23 +590,99 @@
   function findSpecialSpawnTarget(matchGroups) {
     if (!canCreateSpecialForCurrentStage() || specialCreatedThisMove) return null;
 
-    const wolfGroup = matchGroups.find((group) => group.cells.length >= 5 && !isSpecialPiece(group.icon));
-    if (wolfGroup) {
+    const components = getMatchedComponents(matchGroups);
+
+    // 5個以上は、横一列・縦一列だけでなく、L字やT字のような
+    // つながった形も白狼として扱う。
+    const wolfComponent = components.find((component) => component.icon && component.cells.length >= 5);
+    if (wolfComponent) {
       return {
         icon: WOLF,
-        target: wolfGroup.cells[Math.floor(wolfGroup.cells.length / 2)] ?? wolfGroup.cells[0] ?? null,
+        target: chooseSpecialTarget(wolfComponent.cells),
       };
     }
 
-    const puddingGroup = matchGroups.find((group) => group.cells.length >= 4 && !isSpecialPiece(group.icon));
-    if (puddingGroup) {
+    // 4個以上はプリン。こちらも、今後の形拡張に備えて
+    // つながったマッチ全体の個数で判定する。
+    const puddingComponent = components.find((component) => component.icon && component.cells.length >= 4);
+    if (puddingComponent) {
       return {
         icon: PUDDING,
-        target: puddingGroup.cells[Math.floor(puddingGroup.cells.length / 2)] ?? puddingGroup.cells[0] ?? null,
+        target: chooseSpecialTarget(puddingComponent.cells),
       };
     }
 
     return null;
+  }
+
+  function getMatchedComponents(matchGroups) {
+    const byIcon = new Map();
+
+    for (const group of matchGroups) {
+      if (!group.icon || isSpecialPiece(group.icon)) continue;
+      if (!byIcon.has(group.icon)) byIcon.set(group.icon, new Set());
+      const cells = byIcon.get(group.icon);
+      for (const cell of group.cells) {
+        cells.add(key(cell.row, cell.col));
+      }
+    }
+
+    const components = [];
+    for (const [icon, cellKeys] of byIcon.entries()) {
+      const remaining = new Set(cellKeys);
+      while (remaining.size > 0) {
+        const firstKey = remaining.values().next().value;
+        const stack = [firstKey];
+        const componentKeys = [];
+        remaining.delete(firstKey);
+
+        while (stack.length > 0) {
+          const currentKey = stack.pop();
+          componentKeys.push(currentKey);
+          const [row, col] = currentKey.split(",").map(Number);
+          const neighbors = [
+            key(row - 1, col),
+            key(row + 1, col),
+            key(row, col - 1),
+            key(row, col + 1),
+          ];
+
+          for (const neighborKey of neighbors) {
+            if (!remaining.has(neighborKey)) continue;
+            remaining.delete(neighborKey);
+            stack.push(neighborKey);
+          }
+        }
+
+        components.push({
+          icon,
+          cells: componentKeys.map((item) => {
+            const [row, col] = item.split(",").map(Number);
+            return { row, col };
+          }),
+        });
+      }
+    }
+
+    components.sort((a, b) => b.cells.length - a.cells.length);
+    return components;
+  }
+
+  function chooseSpecialTarget(cells) {
+    if (!cells.length) return null;
+
+    const averageRow = cells.reduce((sum, cell) => sum + cell.row, 0) / cells.length;
+    const averageCol = cells.reduce((sum, cell) => sum + cell.col, 0) / cells.length;
+
+    return cells
+      .slice()
+      .sort((a, b) => {
+        const distanceA = Math.abs(a.row - averageRow) + Math.abs(a.col - averageCol);
+        const distanceB = Math.abs(b.row - averageRow) + Math.abs(b.col - averageCol);
+        if (distanceA !== distanceB) return distanceA - distanceB;
+        if (a.row !== b.row) return a.row - b.row;
+        return a.col - b.col;
+      })[0];
   }
 
 
