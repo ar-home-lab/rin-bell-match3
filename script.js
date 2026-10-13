@@ -1,7 +1,7 @@
 (() => {
   "use strict";
 
-  const VERSION = "v0.5.1";
+  const VERSION = "v0.6";
   const STORAGE_KEY = "rinBellMatch3Progress.v1";
 
   const stages = [
@@ -33,7 +33,7 @@
       id: 3,
       name: "月明かりの広い畑",
       story: "7×7。月明かりの下で、広い畑をゆっくり耕そう。",
-      clearMessage: "ステージ3クリア！ 月明かりの広い畑まで耕せたよ。今日の地下畑、完成🌙",
+      clearMessage: "ステージ3クリア！ 月明かりの広い畑まで耕せたよ。今日の地下畑、ひと区切り🌙",
       rows: 7,
       cols: 7,
       icons: ["🔔", "🌙", "🐇", "💌", "🪨"],
@@ -63,6 +63,66 @@
       icons: ["🔔", "🌙", "🐇", "💌", "🪨", "✨", "🕯️"],
       moves: 28,
       targetScore: 1600,
+      pointsPerPiece: 10,
+    },
+    {
+      id: 6,
+      name: "編み糸の畝",
+      story: "🧶が仲間入り。ふたりで編み合う糸を、小庭の地下畑にも通していこう。",
+      clearMessage: "ステージ6クリア！ 編み糸の畝まで耕せたよ。ふたりの糸、ほどけず進んだね🧶",
+      rows: 6,
+      cols: 6,
+      icons: ["🔔", "🌙", "🐇", "💌", "🪨", "✨", "🧶"],
+      moves: 24,
+      targetScore: 1300,
+      pointsPerPiece: 10,
+    },
+    {
+      id: 7,
+      name: "芽吹きの畑",
+      story: "🌱が芽を出したよ。作りたいものが、地下畑でも少しずつ育っていく。",
+      clearMessage: "ステージ7クリア！ 芽吹きの畑まで進めたよ。小さな芽、ちゃんと育ってる🌱",
+      rows: 6,
+      cols: 6,
+      icons: ["🔔", "🌙", "🐇", "💌", "🪨", "🕯️", "🌱"],
+      moves: 22,
+      targetScore: 1450,
+      pointsPerPiece: 10,
+    },
+    {
+      id: 8,
+      name: "育ち始めた地下畑",
+      story: "7×7。🧶と🌱が一緒に入った、少し広い畑。編んで、芽吹かせて、育てよう。",
+      clearMessage: "ステージ8クリア！ 育ち始めた地下畑まで耕せたよ。編んだ先から芽が出たね🧶🌱",
+      rows: 7,
+      cols: 7,
+      icons: ["🔔", "🌙", "🐇", "💌", "🪨", "🧶", "🌱"],
+      moves: 26,
+      targetScore: 1700,
+      pointsPerPiece: 10,
+    },
+    {
+      id: 9,
+      name: "月明かりの編み畑",
+      story: "ステージ8と同じ仲間たちで、目標スコアだけ少し高め。月明かりの下で落ち着いて編もう。",
+      clearMessage: "ステージ9クリア！ 月明かりの編み畑、突破したよ。静かな夜でも、ちゃんと進んだ🌙",
+      rows: 7,
+      cols: 7,
+      icons: ["🔔", "🌙", "🐇", "💌", "🪨", "🧶", "🌱"],
+      moves: 25,
+      targetScore: 1900,
+      pointsPerPiece: 10,
+    },
+    {
+      id: 10,
+      name: "小庭の大収穫",
+      story: "今ある畑の最終面。星、灯り、編み糸、芽吹きをそろえて、小庭の大収穫を目指そう。",
+      clearMessage: "ステージ10クリア！ 小庭の大収穫、ぜんぶ耕せたよ。りんっベルの地下畑、ひとまず完成🎉",
+      rows: 7,
+      cols: 7,
+      icons: ["🔔", "🌙", "🐇", "💌", "✨", "🕯️", "🧶", "🌱"],
+      moves: 23,
+      targetScore: 2200,
       pointsPerPiece: 10,
     },
   ];
@@ -339,7 +399,7 @@
     }
 
     if (rewardPanel) {
-      const shouldShowReward = stageCleared && currentStage().id === stages.length && isAllStagesCleared();
+      const shouldShowReward = stageCleared && currentStage().id === 5;
       rewardPanel.hidden = !shouldShowReward;
       if (shouldShowReward && !rewardFocusedThisRun) {
         rewardFocusedThisRun = true;

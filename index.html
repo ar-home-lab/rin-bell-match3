@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-  <title>りんっベルの小庭｜マッチ3畑 v0.5.1</title>
+  <title>りんっベルの小庭｜マッチ3畑 v0.6</title>
   <link rel="stylesheet" href="style.css" />
 </head>
 <body class="cols-6">
@@ -25,7 +25,7 @@
           <div>
             <h2 id="stageSelectTitle">ステージを選ぶ</h2>
             <p id="progressText">クリアすると次の畑が開きます。</p>
-            <p id="allClearBadge" class="all-clear-badge" hidden>🌙 全5ステージクリア済み｜🐺🍮 予告出演中</p>
+            <p id="allClearBadge" class="all-clear-badge" hidden>🌙 全10ステージクリア済み｜地下畑完成🎉</p>
           </div>
           <button id="resetProgressButton" class="soft-button" type="button">進行をリセット</button>
         </div>
@@ -53,12 +53,12 @@
 
       <p id="message" class="message" role="status" aria-live="polite">隣同士のアイコンを入れ替えて、3つ以上そろえてね。</p>
 
-      <section id="rewardPanel" class="reward-panel" aria-label="全ステージクリアごほうび" tabindex="-1" hidden>
-        <p class="reward-kicker">地下畑、今日のぶん完成！</p>
+      <section id="rewardPanel" class="reward-panel" aria-label="ステージ5クリア予告ごほうび" tabindex="-1" hidden>
+        <p class="reward-kicker">ステージ5クリア！</p>
         <div class="reward-icons" aria-hidden="true">🐺 🍮</div>
         <h2>白狼とプリン、予告出演</h2>
-        <p>ステージ5まで耕したごほうびに、柵の向こうから特別枠のふたりが顔を出したよ。</p>
-        <p class="reward-note">まだ通常ピースでも効果つきでもありません。次の更新で、どんな役目になるか一緒に決めよう。</p>
+        <p>ステージ5まで耕したごほうびに、柵の向こうから特別枠のふたりが顔を出したよ。いつか特別な役目を持って出るかもしれないふたりが、今日は顔見せだけしてくれたよ。</p>
+        <p class="reward-note">v0.6ではまだ盤面には出ません。🐺は5個以上そろえた時に生まれる特殊ピース候補、🍮は手数＋3候補として温存中です。</p>
       </section>
 
       <section class="board-wrap" aria-label="パズル盤面">
@@ -75,16 +75,16 @@
       <details class="rules">
         <summary>今日の土台ルール</summary>
         <ul>
-          <li>v0.5は全ステージクリア後に、白狼とプリンの予告出演ごほうび画面が出る版です。</li>
+          <li>v0.6はステージ10まで拡張し、ステージ5クリア後に白狼とプリンの予告出演ごほうび画面が出る版です。</li>
           <li>隣同士だけ入れ替えできます。</li>
           <li>3つ以上そろうと消えて、上から新しいアイコンが落ちます。</li>
-          <li>目標スコアに届いたらクリア。「次の畑へ」で進めます。</li>
+          <li>目標スコアに届いたらクリア。「次の畑へ」で進めます。ステージは10まであります。</li>
           <li>クリア済みステージはいつでも遊び直せます。未解放の畑は鍵つきです。</li>
-          <li>白狼とプリンは、全ステージクリア後のごほうび画面で予告出演します。通常ピースにはまだ入りません。</li>
+          <li>ステージ6以降は🧶と🌱が通常ピースとして登場します。白狼とプリンは通常ピースにはせず、特殊枠として温存します。</li>
         </ul>
       </details>
 
-      <p class="version">りんっベルの小庭｜マッチ3畑 v0.5.1 / ごほうび画面フォーカス版</p>
+      <p class="version">りんっベルの小庭｜マッチ3畑 v0.6 / 10ステージ拡張・特殊枠温存版</p>
     </section>
   </main>
 
