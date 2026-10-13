@@ -1,7 +1,7 @@
 (() => {
   "use strict";
 
-  const VERSION = "v0.6";
+  const VERSION = "v0.6.1";
   const STORAGE_KEY = "rinBellMatch3Progress.v1";
 
   const stages = [
@@ -120,9 +120,9 @@
       clearMessage: "ステージ10クリア！ 小庭の大収穫、ぜんぶ耕せたよ。りんっベルの地下畑、ひとまず完成🎉",
       rows: 7,
       cols: 7,
-      icons: ["🔔", "🌙", "🐇", "💌", "✨", "🕯️", "🧶", "🌱"],
-      moves: 23,
-      targetScore: 2200,
+      icons: ["🔔", "🌙", "🐇", "✨", "🕯️", "🧶", "🌱"],
+      moves: 26,
+      targetScore: 2050,
       pointsPerPiece: 10,
     },
   ];
