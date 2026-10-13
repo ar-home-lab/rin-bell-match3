@@ -387,6 +387,17 @@ h1 {
 
 .cell:disabled {
   cursor: wait;
+  opacity: 1;
+  box-shadow:
+    0 7px 14px rgba(0, 0, 0, 0.22),
+    inset 0 1px 0 rgba(255, 255, 255, 0.26);
+}
+
+.cell:disabled:hover,
+.cell:disabled:focus-visible {
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.24), rgba(255, 255, 255, 0.08));
+  transform: none;
 }
 
 .controls {

@@ -1,7 +1,7 @@
 (() => {
   "use strict";
 
-  const VERSION = "v0.4.1";
+  const VERSION = "v0.4.2";
   const STORAGE_KEY = "rinBellMatch3Progress.v1";
 
   const stages = [
