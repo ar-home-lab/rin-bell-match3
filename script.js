@@ -167,8 +167,8 @@
     if (matches.size === 0) {
       swapCells(a, b);
       setMessage("今の入れ替えではそろわなかったよ。元に戻すね。");
-      render();
       isBusy = false;
+      render();
       return;
     }
 
@@ -176,9 +176,14 @@
     comboDepth = 0;
     setMessage("りんっ。そろった！");
     render();
-    await resolveBoard();
-    checkGameState();
+    await wait(180);
+    const summary = await resolveBoard();
+    const finished = checkGameState();
     isBusy = false;
+    if (!finished) {
+      messageElement.className = "message";
+      setMessage(summary.message);
+    }
     render();
   }
 
@@ -234,33 +239,47 @@
 
   async function resolveBoard() {
     let matches = findMatches(board);
+    let totalPieces = 0;
+    let totalPoints = 0;
+    let maxCombo = 0;
+    let reshuffled = false;
 
     while (matches.size > 0) {
       comboDepth += 1;
+      maxCombo = comboDepth;
+      totalPieces += matches.size;
       markMatchedCells(matches);
       const gained = matches.size * stage.pointsPerPiece * comboDepth;
+      totalPoints += gained;
       score += gained;
-      setMessage(comboDepth === 1 ? `りんっ！ ${matches.size}個そろったよ。+${gained}` : `連鎖りんっ！ ${matches.size}個そろったよ。+${gained}`);
+      setMessage(comboDepth === 1 ? `りんっ！ ${matches.size}個そろったよ。+${gained}` : `連鎖りんっ！ ${comboDepth}連鎖目、${matches.size}個そろったよ。+${gained}`);
       render();
-      await wait(230);
+      await wait(comboDepth === 1 ? 650 : 820);
 
       removeMatches(matches);
       collapseColumns();
       refillBoard();
       render();
-      await wait(210);
+      await wait(260);
 
       matches = findMatches(board);
     }
 
     if (!hasAnyPossibleMove(board) && !gameOver) {
+      reshuffled = true;
       setMessage("動かせるところがなくなったから、畑を整えるね。");
       render();
-      await wait(280);
+      await wait(700);
       shuffleBoardUntilPlayable();
       render();
-      await wait(160);
+      await wait(220);
     }
+
+    const message = maxCombo > 1
+      ? `連鎖りんっ！ ${maxCombo}連鎖、合計${totalPieces}個そろったよ。+${totalPoints}${reshuffled ? " 畑も整えたよ。" : ""}`
+      : `りんっ！ ${totalPieces}個そろったよ。+${totalPoints}${reshuffled ? " 畑も整えたよ。" : ""}`;
+
+    return { maxCombo, totalPieces, totalPoints, reshuffled, message };
   }
 
   function markMatchedCells(matches) {
@@ -309,18 +328,18 @@
       gameOver = true;
       messageElement.className = "message win";
       setMessage("クリア！ 小庭の地下畑、今日はここまで耕せたよ。りんっ🔔");
-      return;
+      return true;
     }
 
     if (movesLeft <= 0) {
       gameOver = true;
       messageElement.className = "message lose";
       setMessage("手数を使い切ったよ。もう一回、畑を整えて挑戦しよう。");
-      return;
+      return true;
     }
 
     messageElement.className = "message";
-    setMessage("いい感じ。次も3つ以上そろえていこう。");
+    return false;
   }
 
   function cloneBoard(targetBoard) {
