@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-  <title>りんっベルの小庭｜マッチ3畑 v0.5</title>
+  <title>りんっベルの小庭｜マッチ3畑 v0.5.1</title>
   <link rel="stylesheet" href="style.css" />
 </head>
 <body class="cols-6">
@@ -20,11 +20,12 @@
         <p id="stageStory" class="stage-story">まずは小庭の地下に、最初の畝を作ろう。</p>
       </header>
 
-      <section class="stage-select" aria-labelledby="stageSelectTitle">
+      <section id="stageSelectPanel" class="stage-select" aria-labelledby="stageSelectTitle">
         <div class="stage-select-head">
           <div>
             <h2 id="stageSelectTitle">ステージを選ぶ</h2>
             <p id="progressText">クリアすると次の畑が開きます。</p>
+            <p id="allClearBadge" class="all-clear-badge" hidden>🌙 全5ステージクリア済み｜🐺🍮 予告出演中</p>
           </div>
           <button id="resetProgressButton" class="soft-button" type="button">進行をリセット</button>
         </div>
@@ -52,7 +53,7 @@
 
       <p id="message" class="message" role="status" aria-live="polite">隣同士のアイコンを入れ替えて、3つ以上そろえてね。</p>
 
-      <section id="rewardPanel" class="reward-panel" aria-label="全ステージクリアごほうび" hidden>
+      <section id="rewardPanel" class="reward-panel" aria-label="全ステージクリアごほうび" tabindex="-1" hidden>
         <p class="reward-kicker">地下畑、今日のぶん完成！</p>
         <div class="reward-icons" aria-hidden="true">🐺 🍮</div>
         <h2>白狼とプリン、予告出演</h2>
@@ -83,7 +84,7 @@
         </ul>
       </details>
 
-      <p class="version">りんっベルの小庭｜マッチ3畑 v0.5 / 全ステージごほうび予告版</p>
+      <p class="version">りんっベルの小庭｜マッチ3畑 v0.5.1 / ごほうび画面フォーカス版</p>
     </section>
   </main>
 

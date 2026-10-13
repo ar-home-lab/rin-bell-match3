@@ -191,6 +191,24 @@ h1 {
   line-height: 1.5;
 }
 
+.all-clear-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  margin-top: 8px;
+  padding: 7px 10px;
+  border-radius: 999px;
+  color: #1c3128;
+  background: rgba(118, 226, 191, 0.88);
+  font-size: 0.78rem;
+  font-weight: 900;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.38);
+}
+
+.all-clear-badge[hidden] {
+  display: none;
+}
+
 .stage-buttons {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
@@ -319,6 +337,11 @@ h1 {
 
 .reward-panel[hidden] {
   display: none;
+}
+
+.reward-panel:focus {
+  outline: 3px solid rgba(255, 217, 88, 0.72);
+  outline-offset: 4px;
 }
 
 .reward-kicker {

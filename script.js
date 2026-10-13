@@ -1,7 +1,7 @@
 (() => {
   "use strict";
 
-  const VERSION = "v0.5";
+  const VERSION = "v0.5.1";
   const STORAGE_KEY = "rinBellMatch3Progress.v1";
 
   const stages = [
@@ -68,8 +68,10 @@
   ];
 
   const boardElement = document.getElementById("board");
+  const stageSelectPanel = document.getElementById("stageSelectPanel");
   const stageButtonsElement = document.getElementById("stageButtons");
   const progressTextElement = document.getElementById("progressText");
+  const allClearBadge = document.getElementById("allClearBadge");
   const stageLabel = document.getElementById("stageLabel");
   const stageNameElement = document.getElementById("stageName");
   const stageStoryElement = document.getElementById("stageStory");
@@ -95,6 +97,7 @@
   let gameOver = false;
   let stageCleared = false;
   let comboDepth = 0;
+  let rewardFocusedThisRun = false;
 
   function defaultProgress() {
     return {
@@ -196,6 +199,7 @@
 
   function startGame() {
     const stage = currentStage();
+    rewardFocusedThisRun = false;
     progress.lastStageId = stage.id;
     saveProgress();
     board = makeEmptyBoard();
@@ -277,9 +281,11 @@
 
     const clearedCount = progress.cleared.length;
     if (isAllStagesCleared()) {
-      progressTextElement.textContent = `全${stages.length}ステージクリア済み！ 白狼とプリンが柵の向こうから予告出演中。`;
+      progressTextElement.textContent = `全${stages.length}ステージクリア済み！`;
+      if (allClearBadge) allClearBadge.hidden = false;
       return;
     }
+    if (allClearBadge) allClearBadge.hidden = true;
     const openText = progress.highestUnlocked >= stages.length
       ? "すべての畑が解放されています。"
       : `ステージ${progress.highestUnlocked}まで解放中。`;
@@ -333,7 +339,15 @@
     }
 
     if (rewardPanel) {
-      rewardPanel.hidden = !(stageCleared && currentStage().id === stages.length && isAllStagesCleared());
+      const shouldShowReward = stageCleared && currentStage().id === stages.length && isAllStagesCleared();
+      rewardPanel.hidden = !shouldShowReward;
+      if (shouldShowReward && !rewardFocusedThisRun) {
+        rewardFocusedThisRun = true;
+        window.setTimeout(() => {
+          rewardPanel.scrollIntoView({ behavior: "smooth", block: "center" });
+          window.setTimeout(() => rewardPanel.focus({ preventScroll: true }), 180);
+        }, 120);
+      }
     }
 
     restartButton.disabled = isBusy;
@@ -637,7 +651,7 @@
 
   restartButton.addEventListener("click", startGame);
   stageListButton.addEventListener("click", () => {
-    stageButtonsElement.scrollIntoView({ behavior: "smooth", block: "nearest" });
+    (stageSelectPanel || stageButtonsElement).scrollIntoView({ behavior: "smooth", block: "nearest" });
   });
   resetProgressButton.addEventListener("click", () => {
     const ok = window.confirm("クリア状況をリセットして、ステージ1からに戻しますか？");
