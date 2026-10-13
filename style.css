@@ -11,7 +11,11 @@
   --accent-2: #76e2bf;
   --danger: #ff9aa9;
   --shadow: rgba(0, 0, 0, 0.35);
-  --cell-size: min(13.2vw, 64px);
+  --outer-pad: clamp(10px, 3vw, 32px);
+  --card-pad: clamp(14px, 4vw, 36px);
+  --board-pad: clamp(10px, 3vw, 18px);
+  --cell-gap: clamp(5px, 1.5vw, 7px);
+  --cell-size: min(64px, calc((100vw - (var(--outer-pad) * 2) - (var(--card-pad) * 2) - (var(--board-pad) * 2) - (var(--cell-gap) * 5) - 8px) / 6));
 }
 
 * {
@@ -32,6 +36,7 @@ body {
     radial-gradient(circle at 22% 82%, rgba(126, 229, 190, 0.19), transparent 18rem),
     linear-gradient(180deg, var(--bg-1), var(--bg-2));
   overflow-x: hidden;
+  width: 100%;
 }
 
 body::before,
@@ -52,7 +57,7 @@ body::after {
   width: min(100%, 760px);
   margin: 0 auto;
   min-height: 100vh;
-  padding: clamp(18px, 4vw, 32px);
+  padding: var(--outer-pad);
   display: grid;
   place-items: center;
 }
@@ -60,7 +65,7 @@ body::after {
 .card {
   width: min(100%, 620px);
   position: relative;
-  padding: clamp(22px, 5vw, 36px);
+  padding: var(--card-pad);
   border: 2px solid var(--card-border);
   border-radius: 34px;
   background: var(--card);
@@ -184,8 +189,12 @@ h1 {
 .board-wrap {
   display: grid;
   place-items: center;
+  width: 100%;
+  max-width: calc((var(--cell-size) * 6) + (var(--cell-gap) * 5) + (var(--board-pad) * 2));
+  justify-self: center;
+  overflow: hidden;
   margin: 8px 0 18px;
-  padding: clamp(12px, 3vw, 18px);
+  padding: var(--board-pad);
   border-radius: 28px;
   background:
     linear-gradient(180deg, rgba(51, 123, 107, 0.92), rgba(20, 70, 68, 0.95)),
@@ -197,7 +206,7 @@ h1 {
   display: grid;
   grid-template-columns: repeat(6, var(--cell-size));
   grid-template-rows: repeat(6, var(--cell-size));
-  gap: 7px;
+  gap: var(--cell-gap);
   touch-action: manipulation;
   user-select: none;
 }
@@ -205,8 +214,9 @@ h1 {
 .cell {
   width: var(--cell-size);
   height: var(--cell-size);
-  display: grid;
-  place-items: center;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   padding: 0;
   appearance: none;
   -webkit-appearance: none;
@@ -226,13 +236,14 @@ h1 {
 }
 
 .piece {
-  display: grid;
-  place-items: center;
-  width: 100%;
-  height: 100%;
+  display: block;
+  width: 1em;
+  height: 1em;
   line-height: 1;
+  text-align: center;
   font-family: "Apple Color Emoji", "Segoe UI Emoji", "Noto Color Emoji", system-ui, sans-serif;
-  transform: translateX(-0.03em);
+  transform: translateX(-0.10em);
+  transform-origin: center;
   pointer-events: none;
 }
 
@@ -314,17 +325,18 @@ button:active {
 
 @media (max-width: 520px) {
   :root {
-    --cell-size: min(13vw, 54px);
+    --outer-pad: 10px;
+    --card-pad: 14px;
+    --board-pad: 10px;
+    --cell-gap: 5px;
   }
 
   .app-shell {
-    padding: 18px 14px;
     align-items: start;
   }
 
   .card {
     border-radius: 28px;
-    padding: 22px 18px 24px;
   }
 
   .status-panel {
@@ -334,10 +346,6 @@ button:active {
   .status-panel > div {
     border-radius: 15px;
     padding: 8px 4px;
-  }
-
-  .board {
-    gap: 5px;
   }
 
   .cell {
